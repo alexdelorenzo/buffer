@@ -1,7 +1,7 @@
-from typing import List, Iterable, Dict, NamedTuple, Any, Union, Optional, Tuple
-from itertools import chain
-import tempfile
 import logging
+import tempfile
+from itertools import chain
+from typing import Iterable
 
 from wrapt.decorators import synchronized
 
@@ -12,18 +12,18 @@ class StreamBuffer:
     def __init__(self, 
                  stream: Iterable[bytes], 
                  size: int, 
-                 max_size: float=MAX_SIZE):
+                 max_size: float = MAX_SIZE):
         self.stream = stream
         self.size = size
         self.stream_index = 0 
-        self.temp = tempfile.SpooledTemporaryFile(max_size=MAX_SIZE)
+        self.temp = tempfile.SpooledTemporaryFile(max_size=max_size)
     
     def __del__(self):
         logging.debug(f'Releasing {self}')
         self.temp.close()
     
     def __repr__(self):
-        name = self.__name__
+        name = StreamBuffer.__name__
         size = self.size
         stream_index = self.stream_index
         temp = self.temp
@@ -49,7 +49,7 @@ class StreamBuffer:
         self.stream = chain([item], self.stream)
         return False
     
-    def read(self,  offset: int, size: int) -> bytes:
+    def read(self, offset: int, size: int) -> bytes:
         end = offset + size
         buf = bytearray()
         
