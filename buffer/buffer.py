@@ -28,7 +28,7 @@ class StreamBuffer:
         stream_index = self.stream_index
         temp = self.temp
         
-        return f'{name}<{size=}, {stream_index=}, {temp=}>'
+        return f'{name}<{size}, {stream_index}, {temp}>'
     
     def __getitem__(self, val) -> bytes:
         if isinstance(val, (tuple, list)):
