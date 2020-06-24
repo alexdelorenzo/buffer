@@ -1,9 +1,10 @@
+from typing import Iterable, Optional, Union
+from itertools import chain
 import logging
 import tempfile
-from itertools import chain
-from typing import Iterable, Optional, Union
 
 from wrapt.decorators import synchronized
+
 
 MAX_SIZE = 5 * 1_024 * 1_024
 CHUNK = 1024 * 4  # bytes
