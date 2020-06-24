@@ -6,7 +6,7 @@ readme = Path('README.md').read_text()
 
 
 setup(name="buffer",
-      version="0.0.4",
+      version="0.0.5",
       description="A stream buffer backed by a spooled temporary file.",
       long_description=readme,
       long_description_content_type="text/markdown",
@@ -17,7 +17,5 @@ setup(name="buffer",
       zip_safe=True,
       install_requires=requirements,
       keywords="stream-buffer stream buffer file buffer temporary file".split(' '),
-#       entry_points={"console_scripts":
-#                         ["campfs = campfs.command:cmd"]},
       python_requires='>=3.6',
 )
