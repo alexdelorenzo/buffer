@@ -1,18 +1,45 @@
 import logging
 import tempfile
 from itertools import chain
-from typing import Iterable
+from typing import Iterable, Optional, Union
 
 from wrapt.decorators import synchronized
 
 MAX_SIZE = 5 * 1_024 * 1_024
+CHUNK = 1024 * 4  # bytes
+START = 0
+
+
+class IterableBytes:
+  def __init__(self, bytes_obj: bytes, chunk: int = CHUNK):
+    self.bytes = bytes_obj
+    self.chunk = chunk
+
+  def __iter__(self) -> Iterable[bytes]:
+    start: Optional[int] = None
+    length = len(self.bytes)
+
+    for start in range(START, length, CHUNK):
+      window = slice(start, start + CHUNK)
+      yield self.bytes[window]
+
+    if start and start + CHUNK < length:
+      window = slice(start + CHUNK, length)
+      yield self.bytes[window]
+
+
+Stream = Union[IterableBytes, Iterable[bytes], bytes]
 
 
 class StreamBuffer:
     def __init__(self, 
-                 stream: Iterable[bytes], 
+                 stream: Stream,
                  size: int, 
-                 max_size: float = MAX_SIZE):
+                 max_size: int = MAX_SIZE):
+
+        if isinstance(stream, bytes):
+            stream = IterableBytes(stream)
+
         self.stream = stream
         self.size = size
         self.stream_index = 0 

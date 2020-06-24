@@ -19,5 +19,5 @@ setup(name="buffer",
       keywords="stream-buffer stream buffer file buffer temporary file".split(' '),
 #       entry_points={"console_scripts":
 #                         ["campfs = campfs.command:cmd"]},
-      python_requires='~=3.7',
+      python_requires='>=3.6',
 )
