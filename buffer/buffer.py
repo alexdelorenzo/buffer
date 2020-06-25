@@ -6,7 +6,7 @@ import tempfile
 from wrapt.decorators import synchronized
 
 
-MAX_SIZE = 5 * 1_024 * 1_024
+MAX_SIZE = 5 * 1_024 * 1_024  # bytes
 CHUNK = 4 * 1_024  # bytes
 START = 0
 
@@ -112,7 +112,7 @@ class StreamBuffer:
 
         return bytes(buf)
 
-      elif self.stream_index < offset <= self.size: # and not self.is_exhausted():
+      elif self.stream_index < offset <= self.size:  # and not self.is_exhausted():
         self.temp.seek(self.stream_index)
 
         for line in self.stream:
