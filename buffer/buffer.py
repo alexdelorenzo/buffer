@@ -7,7 +7,7 @@ from wrapt.decorators import synchronized
 
 
 MAX_SIZE = 5 * 1_024 * 1_024
-CHUNK = 1024 * 4  # bytes
+CHUNK = 4 * 1_024  # bytes
 START = 0
 
 
@@ -24,9 +24,13 @@ class IterableBytes:
       window = slice(start, start + CHUNK)
       yield self.bytes[window]
 
-    if start and start + CHUNK < length:
+    if start and (start + CHUNK) < length:
       window = slice(start + CHUNK, length)
       yield self.bytes[window]
+
+
+   def get_iter(self) -> Iterable[bytes]:
+       return iter(self)
 
 
 Stream = Union[IterableBytes, Iterable[bytes], bytes]
@@ -40,6 +44,9 @@ class StreamBuffer:
 
         if isinstance(stream, bytes):
             stream = IterableBytes(stream)
+
+        if isinstance(stream, IterableBytes):
+            stream = iter(stream)
 
         self.stream = stream
         self.size = size
@@ -86,7 +93,7 @@ class StreamBuffer:
                 self.temp.seek(offset)
                 return self.temp.read(size)
 
-            elif offset < self.stream_index and end > self.stream_index:
+            elif offset < self.stream_index < end:
                 self.temp.seek(offset)
                 return self.temp.read(end)        
 
@@ -105,7 +112,7 @@ class StreamBuffer:
                     
                 return bytes(buf)
 
-            elif offset > self.stream_index and offset <= self.size: # and not self.is_exhausted():
+            elif self.stream_index < offset <= self.size: # and not self.is_exhausted():
                 self.temp.seek(self.stream_index)
 
                 for line in self.stream:
