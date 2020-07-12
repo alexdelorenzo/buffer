@@ -10,6 +10,7 @@ MAX_SIZE = 5 * 1_024 * 1_024  # bytes
 CHUNK = 4 * 1_024  # bytes
 START = 0
 INDEX_SIZE = 2
+STREAM_INDEX = 0
 
 GETITEM_ERR = f'Expected a collection with a length of {INDEX_SIZE} or a slice object.'
 
@@ -55,7 +56,7 @@ class StreamBuffer:
 
     self.stream = stream
     self.size = size
-    self.stream_index = 0
+    self.stream_index = STREAM_INDEX
     self.temp = tempfile.SpooledTemporaryFile(max_size=max_size)
 
   def __del__(self):
