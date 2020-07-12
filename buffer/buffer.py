@@ -15,7 +15,7 @@ GETITEM_ERR = 'Expected a collection with a length of 2 or a slice object.'
 
 
 class IterableBytes:
-  def __init__(self, bytes_obj: bytes, chunk: int = CHUNK, start: Optional[int] = START):
+  def __init__(self, bytes_obj: bytes, chunk: int = CHUNK, start: int = START):
     self.bytes = bytes_obj
     self.chunk = chunk
     self.start = start
@@ -24,7 +24,7 @@ class IterableBytes:
     return iter(self)
 
   def __iter__(self) -> Iterable[bytes]:
-    start: Optional[int] = self.start  # just in case size is 0
+    start: int = self.start  # just in case size is 0
     length = len(self.bytes)
 
     for start in range(self.start, length, self.chunk):
