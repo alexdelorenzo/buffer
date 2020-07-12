@@ -24,13 +24,14 @@ class IterableBytes:
     return iter(self)
 
   def __iter__(self) -> Iterable[bytes]:
-    start: Optional[int] = None  # just in case size is 0
+    start: Optional[int] = self.start  # just in case size is 0
     length = len(self.bytes)
 
     for start in range(self.start, length, self.chunk):
       window = slice(start, start + self.chunk)
       yield self.bytes[window]
 
+    # variable start should leak from for-loop scope if len(bytes) > 0
     if start and (start + self.chunk) < length:
       window = slice(start + self.chunk, length)
       yield self.bytes[window]
