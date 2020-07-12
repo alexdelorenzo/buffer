@@ -9,26 +9,30 @@ from wrapt.decorators import synchronized
 MAX_SIZE = 5 * 1_024 * 1_024  # bytes
 CHUNK = 4 * 1_024  # bytes
 START = 0
+INDEX_SIZE = 2
+
+GETITEM_ERR = 'Expected a collection with a length of 2 or a slice object.'
 
 
 class IterableBytes:
-  def __init__(self, bytes_obj: bytes, chunk: int = CHUNK):
+  def __init__(self, bytes_obj: bytes, chunk: int = CHUNK, start: Optional[int] = START):
     self.bytes = bytes_obj
     self.chunk = chunk
+    self.start = start
 
   def get_iter(self) -> Iterable[bytes]:
     return iter(self)
 
   def __iter__(self) -> Iterable[bytes]:
-    start: Optional[int] = None
+    start: Optional[int] = None  # just in case size is 0
     length = len(self.bytes)
 
-    for start in range(START, length, CHUNK):
-      window = slice(start, start + CHUNK)
+    for start in range(self.start, length, self.chunk):
+      window = slice(start, start + self.chunk)
       yield self.bytes[window]
 
-    if start and (start + CHUNK) < length:
-      window = slice(start + CHUNK, length)
+    if start and (start + self.chunk) < length:
+      window = slice(start + self.chunk, length)
       yield self.bytes[window]
 
 
@@ -66,14 +70,14 @@ class StreamBuffer:
     return f'{name}<{size}, {stream_index}, {temp}>'
 
   def __getitem__(self, val) -> bytes:
-    if isinstance(val, (tuple, list)):
+    if isinstance(val, (tuple, list)) and len(val) == INDEX_SIZE:
       start, stop = val
       return self.read(start, stop - start)
 
     elif isinstance(val, slice):
       return self.read(val.start, val.stop - val.start)
 
-    raise NotImplementedError()
+    raise NotImplementedError(GETITEM_ERR)
 
   def is_exhausted(self) -> bool:
     try:
