@@ -11,7 +11,7 @@ CHUNK = 4 * 1_024  # bytes
 START = 0
 INDEX_SIZE = 2
 
-GETITEM_ERR = 'Expected a collection with a length of 2 or a slice object.'
+GETITEM_ERR = f'Expected a collection with a length of {INDEX_SIZE} or a slice object.'
 
 
 class IterableBytes:
