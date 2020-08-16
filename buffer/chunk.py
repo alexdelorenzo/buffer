@@ -9,18 +9,17 @@ class Location(Enum):
     AfterIndex = auto()
 
 
-class ChunkLocation(ABC):
+class ChunkRead(ABC):
     def _chunk_before_index(self, offset: int, size: int) -> bytes:
         pass
     def _chunk_bisected_by_index(self, offset: int, size: int) -> bytes:
         pass
-    def _chunk_at_index(self, offset: int) -> bytes:
+    def _chunk_at_index(self, size: int) -> bytes:
         pass
     def _chunk_after_index(self, offset: int, size: int) -> bytes:
         pass
 
 
-class ChunkRead(ABC):
+class ChunkLocation(ABC):
     def _chunk_location(self, offset: int, size: int) -> Location:
         pass
-
