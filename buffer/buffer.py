@@ -148,11 +148,7 @@ class StreamBuffer(BufferLocation, BufferRead):
     elif isinstance(val, slice):
       return self.read(val.start, val.stop - val.start)
 
-<<<<<<< HEAD
-    raise NotImplementedError(f"Indexing via {type(val)} is not supported. Use a slice().")
-=======
     raise NotImplementedError(GETITEM_ERR)
->>>>>>> bd054a992a018a32f9ab27b57bb9146ed5c6235b
 
   def is_exhausted(self) -> bool:
     try:
