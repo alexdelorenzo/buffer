@@ -14,7 +14,8 @@ START = 0
 INDEX_SIZE = 2
 STREAM_INDEX = 0
 
-GETITEM_ERR = f'Expected a collection with a length of {INDEX_SIZE} or a slice object.'
+GETITEM_ERR = \
+  f'Expected a collection with a length of {INDEX_SIZE} or a slice object.'
 
 
 class IterableBytes:
@@ -23,7 +24,7 @@ class IterableBytes:
     self.chunk = chunk
     self.start = start
 
-  def get_iter(self) -> Iterable[bytes]:
+  def iter(self) -> Iterable[bytes]:
     return iter(self)
 
   def __iter__(self) -> Iterable[bytes]:
@@ -148,11 +149,8 @@ class StreamBuffer(BufferLocation, BufferRead):
     elif isinstance(val, slice):
       return self.read(val.start, val.stop - val.start)
 
-<<<<<<< HEAD
-    raise NotImplementedError(f"Indexing via {type(val)} is not supported. Use a slice().")
-=======
     raise NotImplementedError(GETITEM_ERR)
->>>>>>> bd054a992a018a32f9ab27b57bb9146ed5c6235b
+
 
   def is_exhausted(self) -> bool:
     try:
