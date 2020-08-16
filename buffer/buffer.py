@@ -151,7 +151,6 @@ class StreamBuffer(BufferLocation, BufferRead):
 
     raise NotImplementedError(GETITEM_ERR)
 
-
   def is_exhausted(self) -> bool:
     try:
       item = next(self.stream)
