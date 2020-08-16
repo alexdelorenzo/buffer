@@ -11,26 +11,32 @@ from .chunk import Location, ChunkRead, ChunkLocation
 MAX_SIZE = 5 * 1_024 * 1_024  # bytes
 CHUNK = 4 * 1_024  # bytes
 START = 0
+INDEX_SIZE = 2
+STREAM_INDEX = 0
+
+GETITEM_ERR = f'Expected a collection with a length of {INDEX_SIZE} or a slice object.'
 
 
 class IterableBytes:
-  def __init__(self, bytes_obj: bytes, chunk: int = CHUNK):
+  def __init__(self, bytes_obj: bytes, chunk: int = CHUNK, start: int = START):
     self.bytes = bytes_obj
     self.chunk = chunk
+    self.start = start
 
   def get_iter(self) -> Iterable[bytes]:
     return iter(self)
 
   def __iter__(self) -> Iterable[bytes]:
-    start: Optional[int] = None
+    start: int = self.start  # just in case size is 0
     length = len(self.bytes)
 
-    for start in range(START, length, CHUNK):
-      window = slice(start, start + CHUNK)
+    for start in range(self.start, length, self.chunk):
+      window = slice(start, start + self.chunk)
       yield self.bytes[window]
 
-    if start and (start + CHUNK) < length:
-      window = slice(start + CHUNK, length)
+    # variable start should leak from for-loop scope if len(bytes) > 0
+    if start and (start + self.chunk) < length:
+      window = slice(start + self.chunk, length)
       yield self.bytes[window]
 
 
@@ -119,7 +125,7 @@ class StreamBuffer(BufferLocation, BufferRead):
 
     self.stream = stream
     self.size = size
-    self.stream_index = 0
+    self.stream_index = STREAM_INDEX
     self.temp = tempfile.SpooledTemporaryFile(max_size=max_size)
 
   def __del__(self):
@@ -135,14 +141,18 @@ class StreamBuffer(BufferLocation, BufferRead):
     return f'{name}<{size}, {stream_index}, {temp}>'
 
   def __getitem__(self, val) -> bytes:
-    if isinstance(val, (tuple, list)):
+    if isinstance(val, (tuple, list)) and len(val) == INDEX_SIZE:
       start, stop = val
       return self.read(start, stop - start)
 
     elif isinstance(val, slice):
       return self.read(val.start, val.stop - val.start)
 
+<<<<<<< HEAD
     raise NotImplementedError(f"Indexing via {type(val)} is not supported. Use a slice().")
+=======
+    raise NotImplementedError(GETITEM_ERR)
+>>>>>>> bd054a992a018a32f9ab27b57bb9146ed5c6235b
 
   def is_exhausted(self) -> bool:
     try:
