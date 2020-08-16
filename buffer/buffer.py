@@ -5,6 +5,8 @@ import tempfile
 
 from wrapt.decorators import synchronized
 
+from .chunk import Location, ChunkRead, ChunkLocation
+
 
 MAX_SIZE = 5 * 1_024 * 1_024  # bytes
 CHUNK = 4 * 1_024  # bytes
@@ -32,11 +34,78 @@ class IterableBytes:
       yield self.bytes[window]
 
 
-
 Stream = Union[IterableBytes, Iterable[bytes], bytes]
 
 
-class StreamBuffer:
+class Buffer:
+    stream: Stream
+    size: int
+    max_size: int
+    stream_index: int
+    temp: tempfile.SpooledTemporaryFile
+
+
+class BufferLocation(Buffer, ChunkLocation):    
+  def _chunk_location(self, offset: int, size: int) -> Location:
+    end = offset + size
+
+    if offset < self.stream_index and end <= self.stream_index:
+      return Location.BeforeIndex
+    
+    elif offset < self.stream_index < end:
+      return Location.Bisected
+    
+    elif offset == self.stream_index:
+      return Location.AtIndex
+    
+    return Location.AfterIndex
+
+
+class BufferRead(Buffer, ChunkRead):
+  def _chunk_before_index(self, offset: int, size: int) -> bytes:
+    self.temp.seek(offset)
+    return self.temp.read(size)
+
+  def _chunk_bisected_by_index(self, offset: int, size: int) -> bytes:
+    buf = bytearray()
+    chunk_before = self._chunk_before_index(offset, size)
+    chunk_after = self._chunk_at_index(size)
+    buf.extend(chain(chunk_before, chunk_after))
+
+    return bytes(buf)
+
+  def _chunk_at_index(self, size: int) -> bytes:
+    buf = bytearray()
+    self.temp.seek(self.stream_index)
+
+    for line in self.stream:
+      self.stream_index += len(line)
+      self.temp.write(line)
+      buf.extend(line)
+
+      if len(buf) >= size:
+        return bytes(buf[:size])
+
+    return bytes(buf)
+
+  def _chunk_after_index(self, offset: int, size: int) -> bytes:
+    buf = bytearray()
+    self.temp.seek(self.stream_index)
+
+    for line in self.stream:
+      self.stream_index += len(line)
+      self.temp.write(line)
+
+      if self.stream_index >= offset:
+        buf.extend(line)
+
+      if len(buf) >= size:
+        return bytes(buf[:size])
+    
+    return bytes(buf)
+
+
+class StreamBuffer(BufferLocation, BufferRead):
   def __init__(self,
                stream: Stream,
                size: int,
@@ -73,7 +142,7 @@ class StreamBuffer:
     elif isinstance(val, slice):
       return self.read(val.start, val.stop - val.start)
 
-    raise NotImplementedError()
+    raise NotImplementedError(f"Indexing via {type(val)} is not supported. Use a slice().")
 
   def is_exhausted(self) -> bool:
     try:
@@ -85,54 +154,17 @@ class StreamBuffer:
     return False
 
   def read(self, offset: int, size: int) -> bytes:
-    end = offset + size
-    buf = bytearray()
-
     with synchronized(self):
-      if offset < self.stream_index and end <= self.stream_index:
-        self.temp.seek(offset)
-        return self.temp.read(size)
+      location = self._chunk_location(offset, size)
 
-      elif offset < self.stream_index < end:
-        self.temp.seek(offset)
-        return self.temp.read(end)
+      if location == Location.BeforeIndex:
+        return self._chunk_before_index(offset, size)
 
-      elif offset == self.stream_index:
-        self.temp.seek(offset)
-        for line in self.stream:
-          self.stream_index += len(line)
-          self.temp.write(line)
-          buf.extend(line)
+      elif location == Location.AtIndex:
+        return self._chunk_at_index(size)
 
-          if len(buf) >= size:
-            return bytes(buf[:size])
+      elif location == Location.Bisected:
+        return self._chunk_bisected_by_index(offset, size)
 
-        #                 if self.is_exhausted():
-        #                     self.size = self.stream_index
-
-        return bytes(buf)
-
-      elif self.stream_index < offset <= self.size:  # and not self.is_exhausted():
-        self.temp.seek(self.stream_index)
-
-        for line in self.stream:
-          self.stream_index += len(line)
-          self.temp.write(line)
-
-          if self.stream_index >= offset:
-            buf.extend(line)
-
-          if len(buf) >= size:
-            return bytes(buf[:size])
-
-        #                 if self.is_exhausted():
-        #                     self.size = self.stream_index
-
-        return bytes(buf)
-
-#             elif self.is_exhausted() and offset >= self.stream_index:
-#                 offset = self.stream_index - size
-#                 self.temp.seek(offset)
-#                 return self.temp.read(end)  
-                
-
+      elif location == Location.AfterIndex:
+        return self._chunk_after_index(offset, size)
