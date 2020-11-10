@@ -75,9 +75,15 @@ class BufferRead(Buffer, ChunkRead):
 
   def _chunk_bisected_by_index(self, offset: int, size: int) -> bytes:
     buf = bytearray()
-    chunk_before = self._chunk_before_index(offset, size)
+    
+    existing_size = self.stream_index - offset
+    chunk_before = self._chunk_before_index(offset, existing_size)
+ 
+    new_size = size - len(chunk_before)
     chunk_after = self._chunk_at_index(size)
-    buf.extend(chain(chunk_before, chunk_after))
+ 
+    chunks = chain(chunk_before, chunk_after)
+    buf.extend(chunks)
 
     return bytes(buf)
 
