@@ -73,9 +73,7 @@ class BufferRead(Buffer, ChunkRead):
     self.temp.seek(offset)
     return self.temp.read(size)
 
-  def _chunk_bisected_by_index(self, offset: int, size: int) -> bytes:
-    buf = bytearray()
-    
+  def _chunk_bisected_by_index(self, offset: int, size: int) -> bytes:    
     existing_size = self.stream_index - offset
     chunk_before = self._chunk_before_index(offset, existing_size)
  
@@ -83,6 +81,7 @@ class BufferRead(Buffer, ChunkRead):
     chunk_after = self._chunk_at_index(new_size)
  
     chunks = chain(chunk_before, chunk_after)
+    buf = bytearray()
     buf.extend(chunks)
 
     return bytes(buf)
