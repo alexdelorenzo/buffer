@@ -80,7 +80,7 @@ class BufferRead(Buffer, ChunkRead):
     chunk_before = self._chunk_before_index(offset, existing_size)
  
     new_size = size - len(chunk_before)
-    chunk_after = self._chunk_at_index(size)
+    chunk_after = self._chunk_at_index(new_size)
  
     chunks = chain(chunk_before, chunk_after)
     buf.extend(chunks)
