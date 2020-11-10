@@ -6,7 +6,7 @@ readme = Path('README.md').read_text()
 
 
 setup(name="buffer",
-      version="0.1.1",
+      version="0.2.0",
       description="A stream buffer backed by a spooled temporary file.",
       long_description=readme,
       long_description_content_type="text/markdown",
