@@ -1,4 +1,4 @@
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional, Union, List, Tuple
 from itertools import chain
 import logging
 import tempfile
@@ -17,9 +17,19 @@ STREAM_INDEX = 0
 GETITEM_ERR = \
   f'Expected a collection with a length of {INDEX_SIZE} or a slice object.'
 
+INDEX_TYPES = list, tuple
+
+
+Index = Union[List[int], Tuple[int], slice]
+
 
 class IterableBytes:
-  def __init__(self, bytes_obj: bytes, chunk: int = CHUNK, start: int = START):
+  def __init__(
+    self, 
+    bytes_obj: bytes, 
+    chunk: int = CHUNK, 
+    start: int = START
+  ):
     self.bytes = bytes_obj
     self.chunk = chunk
     self.start = start
@@ -118,11 +128,12 @@ class BufferRead(Buffer, ChunkRead):
 
 
 class StreamBuffer(BufferLocation, BufferRead):
-  def __init__(self,
-               stream: Stream,
-               size: int,
-               max_size: int = MAX_SIZE):
-
+  def __init__(
+    self,
+    stream: Stream,
+    size: int,
+    max_size: int = MAX_SIZE
+  ):
     if isinstance(stream, bytes):
       stream = IterableBytes(stream)
 
@@ -146,8 +157,8 @@ class StreamBuffer(BufferLocation, BufferRead):
 
     return f'{name}<{size}, {stream_index}, {temp}>'
 
-  def __getitem__(self, val) -> bytes:
-    if isinstance(val, (tuple, list)) and len(val) == INDEX_SIZE:
+  def __getitem__(self, val: Index) -> bytes:
+    if isinstance(val, INDEX_TYPES) and len(val) == INDEX_SIZE:
       start, stop = val
       return self.read(start, stop - start)
 
