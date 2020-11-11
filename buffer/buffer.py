@@ -163,7 +163,11 @@ class StreamBuffer(BufferLocation, BufferRead):
       return self.read(start, stop - start)
 
     elif isinstance(val, slice):
-      return self.read(val.start, val.stop - val.start)
+      start = START if val.start is None else val.start
+      stop = self.size if val.stop is None else val.stop
+      end = stop - start
+
+      return self.read(start, end)
 
     raise NotImplementedError(GETITEM_ERR)
 
