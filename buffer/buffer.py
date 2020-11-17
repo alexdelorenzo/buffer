@@ -12,10 +12,10 @@ MAX_SIZE = 5 * 1_024 * 1_024  # bytes
 CHUNK = 4 * 1_024  # bytes
 START = 0
 INDEX_SIZE = 2
-STREAM_INDEX = 0
+START_INDEX = 0
 
 GETITEM_ERR = \
-  f'Expected a collection with a length of {INDEX_SIZE} or a slice object.'
+  f'Expected a collection with a length of {INDEX_SIZE}, or a slice object.'
 
 INDEX_TYPES = list, tuple
 
@@ -142,7 +142,7 @@ class StreamBuffer(BufferLocation, BufferRead):
 
     self.stream = stream
     self.size = size
-    self.stream_index = STREAM_INDEX
+    self.stream_index = START_INDEX
     self.temp = tempfile.SpooledTemporaryFile(max_size=max_size)
 
   def __del__(self):
@@ -150,7 +150,7 @@ class StreamBuffer(BufferLocation, BufferRead):
     self.temp.close()
 
   def __repr__(self):
-    name = StreamBuffer.__name__
+    name = type(self).__name__
     size = self.size
     stream_index = self.stream_index
     temp = self.temp
@@ -160,7 +160,9 @@ class StreamBuffer(BufferLocation, BufferRead):
   def __getitem__(self, val: Index) -> bytes:
     if isinstance(val, INDEX_TYPES) and len(val) == INDEX_SIZE:
       start, stop = val
-      return self.read(start, stop - start)
+      end = stop - start
+
+      return self.read(start, end)
 
     elif isinstance(val, slice):
       start = START if val.start is None else val.start
