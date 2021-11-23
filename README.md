@@ -11,7 +11,7 @@ In Python, you cannot `seek()` or `slice` into an iterable like you can with `li
 
 Sometimes, streaming and asynchronous data transfers are modeled as iterables in Python. In the case of HTTP responses, the amount of streamed data can vary from a small amount to a relatively large amount.
 
-When you're working with the stream, you might want to go back in the stream, or skip ahead, without losing any streaming data in the process. For that you'd need a caching buffer.
+When you're working with a stream, you might want to go back in the stream, or skip ahead, without losing any streaming data in the process. To do that, you'd need a caching buffer.
 
 A buffer can exist in memory, or it can exist on persistent storage, or both. `buffer` does a mix of both. Using a set memory buffer limit, small streams can remain in memory, and longer streams can buffer on the disk.
 
