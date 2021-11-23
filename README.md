@@ -32,9 +32,9 @@ KB: int = 1024
 
 
 with get(BIG_FILE, stream=True) as response:
-  stream: Iterable[bytes] = response.iter_content()
   length = int(response.headers['Content-Length'])
-  
+
+  stream: Iterable[bytes] = response.iter_content()
   buffer = StreamBuffer(stream, length)
 
   # read from start of stream
