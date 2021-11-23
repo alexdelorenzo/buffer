@@ -27,12 +27,14 @@ from requests import get
 
 
 BIG_FILE: str = "https://releases.ubuntu.com/20.04.1/ubuntu-20.04.1-desktop-amd64.iso"
-START: int = 0
+LEN_KEY: str = 'Content-Length'
+
 KB: int = 1024
+START: int = 0
 
 
 with get(BIG_FILE, stream=True) as response:
-  length = int(response.headers['Content-Length'])
+  length = int(response.headers[LEN_KEY])
 
   stream: Iterable[bytes] = response.iter_content()
   buffer = StreamBuffer(stream, length)
