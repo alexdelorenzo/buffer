@@ -40,13 +40,13 @@ with get(BIG_FILE, stream=True) as response:
   buffer = StreamBuffer(stream, length)
 
   # read from start of stream
-  first_kb: bytes = buffer.read(START, KB)
+  first_kb: bytes = buffer.read(START, size=KB)
   
   # skip ahead to any arbitrary location in the stream
-  arbitrary_kb = buffer.read(20 * KB, KB)
+  arbitrary_kb = buffer.read(20 * KB, size=KB)
   
   # skip back to any arbitrary location in the stream
-  first_again = buffer.read(START, KB)
+  first_again = buffer.read(START, size=KB)
   
   assert first_again == first_kb
 ```
