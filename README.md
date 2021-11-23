@@ -7,7 +7,7 @@ A stream buffer backed by `tempfile.SpooledTemporaryFile`.
 [Click here for the Rust version of this library](https://gitlab.com/thismachinechills/buffers-rs).
 
 ## About
-In Python, you cannot `seek()` or `slice` into an iterable in Python like you can with `list` and other ordered collections.
+In Python, you cannot `seek()` or `slice` into an iterable like you can with `list` and other ordered collections.
 
 Sometimes, streaming and asynchronous data transfers are modeled as iterables in Python. Sometimes a lot of data might get transfered. You might want to go back in the stream, or skip ahead, without losing any streaming data in the process. For that you'd need a caching buffer.
 
