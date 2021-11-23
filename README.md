@@ -15,7 +15,7 @@ When you're working with a stream, you might want to go back in the stream, or s
 
 A buffer can exist in memory, or it can exist on persistent storage, or both. `buffer` does a mix of both. Using a set memory buffer limit, small streams can remain in memory, and longer streams can buffer on the disk.
 
-The `StreamBuffer` is temporary, so when you're done using it, it will automatically clean up the memory and disk caches for you. 
+The `StreamBuffer` is temporary, so when you're done using it, it will automatically clean up its memory and disk caches for you. 
 
 # Example
 
