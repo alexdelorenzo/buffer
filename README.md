@@ -13,9 +13,9 @@ Sometimes streaming and asynchronous data transfers are modeled as iterables in 
 
 When you're working with a stream, you might want to go back in the stream, or skip ahead, without losing any streaming data in the process. To do that, you'd need a caching buffer.
 
-A buffer can exist in memory, or it can exist on persistent storage, or both. `buffer` does a mix of both. Using a set memory buffer limit, small streams can remain in memory, and longer streams can buffer on the disk.
+A buffer can exist in memory, or it can exist on persistent storage, or both. `buffer` does a mix of both. Using a set memory buffer limit, small streams can remain in memory, and longer streams can buffer on the disk. You can wrap an iterable with `buffer.StreamBuffer` and treat it like a persistent file, and not a stream.
 
-The `StreamBuffer` is temporary, so when you're done using it, it will automatically clean up its memory and disk caches for you. 
+A `StreamBuffer` object is temporary, so when you're done using it, it will automatically clean up its memory and disk caches for you. 
 
 # Example
 
@@ -35,8 +35,8 @@ START: int = 0
 
 with get(BIG_FILE, stream=True) as response:
   length = int(response.headers[LEN_KEY])
-
   stream: Iterable[bytes] = response.iter_content()
+
   buffer = StreamBuffer(stream, length)
 
   # read from start of stream
@@ -53,5 +53,5 @@ with get(BIG_FILE, stream=True) as response:
 
 # Installation
 ```bash
-python3 -m pip install buffer==0.1.0
+python3 -m pip install buffer
 ```
