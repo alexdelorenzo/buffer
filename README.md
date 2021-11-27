@@ -1,10 +1,8 @@
 # buffer
 
-A stream buffer backed by `tempfile.SpooledTemporaryFile`. 
+A stream buffer backed by `tempfile.SpooledTemporaryFile`. Here's an [article that goes into more detail about `buffer`](https://alexdelorenzo.dev/programming/2019/04/14/buffer).
 
-[Click here to learn more about `buffer`](https://alexdelorenzo.dev/programming/2019/04/14/buffer).
-
-[Click here for the Rust version of this library](https://gitlab.com/thismachinechills/buffers-rs).
+There's a [Rust version of this library](https://github.com/alexdelorenzo/buffers-rs), too.
 
 ## About
 In Python, you cannot `seek()` or `slice` into an iterable like you can with `list` and other ordered collections.
