@@ -12,10 +12,13 @@ class Location(Enum):
 class ChunkRead(ABC):
     def _chunk_before_index(self, offset: int, size: int) -> bytes:
         pass
+
     def _chunk_bisected_by_index(self, offset: int, size: int) -> bytes:
         pass
+
     def _chunk_at_index(self, size: int) -> bytes:
         pass
+ 
     def _chunk_after_index(self, offset: int, size: int) -> bytes:
         pass
 
