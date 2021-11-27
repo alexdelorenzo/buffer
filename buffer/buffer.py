@@ -177,6 +177,7 @@ class StreamBuffer(BufferLocation, BufferRead):
   def is_exhausted(self) -> bool:
     try:
       item = next(self.stream)
+
     except StopIteration as e:
       return True
 
