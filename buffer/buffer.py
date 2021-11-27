@@ -1,26 +1,27 @@
-from typing import Iterable, Optional, Union, List, Tuple
+from __future__ import annotations
+from typing import Iterable
 from itertools import chain
-import logging
 import tempfile
+import logging
 
 from wrapt.decorators import synchronized
 
 from .chunk import Location, ChunkRead, ChunkLocation
 
 
-MAX_SIZE = 5 * 1_024 * 1_024  # bytes
-CHUNK = 4 * 1_024  # bytes
-START = 0
-INDEX_SIZE = 2
-START_INDEX = 0
+MAX_SIZE: int = 5 * 1_024 ** 2  # bytes
+CHUNK: int = 4 * 1_024  # bytes
+START: int = 0
+INDEX_SIZE: int= 2
+START_INDEX: int = 0
 
-GETITEM_ERR = \
+GETITEM_ERR: str = \
   f'Expected a collection with a length of {INDEX_SIZE}, or a slice object.'
 
-INDEX_TYPES = list, tuple
+INDEX_TYPES: tuple[type] = (list, tuple)
 
 
-Index = Union[List[int], Tuple[int], slice]
+Index = list[int] | tuple[int] | slice
 
 
 class IterableBytes:
@@ -51,7 +52,7 @@ class IterableBytes:
       yield self.bytes[window]
 
 
-Stream = Union[IterableBytes, Iterable[bytes], bytes]
+Stream = IterableBytes | Iterable[bytes] | bytes
 
 
 class Buffer:
@@ -185,15 +186,16 @@ class StreamBuffer(BufferLocation, BufferRead):
   def read(self, offset: int, size: int) -> bytes:
     with synchronized(self):
       location = self._chunk_location(offset, size)
+      
+      match location:
+        case Location.BeforeIndex:
+          return self._chunk_before_index(offset, size)
 
-      if location == Location.BeforeIndex:
-        return self._chunk_before_index(offset, size)
+        case Location.AtIndex:
+          return self._chunk_at_index(size)
 
-      elif location == Location.AtIndex:
-        return self._chunk_at_index(size)
+        case Location.Bisected:
+          return self._chunk_bisected_by_index(offset, size)
 
-      elif location == Location.Bisected:
-        return self._chunk_bisected_by_index(offset, size)
-
-      elif location == Location.AfterIndex:
-        return self._chunk_after_index(offset, size)
+        case Location.AfterIndex:
+          return self._chunk_after_index(offset, size)
