@@ -27,7 +27,7 @@ from requests import get
 BIG_FILE: str = "https://releases.ubuntu.com/20.04.1/ubuntu-20.04.1-desktop-amd64.iso"
 LEN_KEY: str = 'Content-Length'
 
-KB: int = 1024
+KB: int = 1_024
 START: int = 0
 
 
